@@ -1,0 +1,29 @@
+﻿$computers = (Get-AdComputer -filter * -properties Name,OperatingSystem  | where { $_.Operatingsystem -like "*Windows 10*" } | Sort-Object Name).Name
+$failed = @()
+
+$date = Get-Date -Format "_MM_dd_yyyy"
+$logdate = Get-Date
+$logfile = "\_Hillman\Script Output\Anaconda3_Folder_Removal" + $date + ".txt"
+
+## Start text log
+"-----------------$logdate----------------`r`n-------Starting Anaconda Folder Removal Script------`r`n----------------------------------------------------`r`n`r`n" | Out-File $logfile -Append
+
+ForEach ($computer in $computers) {
+
+    "`r`nStarting removal from $computer...`n" | Out-File $logfile -Append
+    
+    $folder = "\\$computer\c$\ProgramData\Microsoft\Windows\Start Menu\Programs\Engineering\Anaconda3 (64-bit)"
+
+    If ((Test-Path -Path $folder -ErrorAction SilentlyContinue) -eq $TRUE) {
+        Try { Remove-Item -Path $folder -Force -ErrorAction SilentlyContinue -recurse
+              "Anoconda3 folder removed from $computer...`n" | Out-File $logfile -Append}
+        Catch { "Unable to remove folder from $computer!!! Adding to failure list.`n" | Out-File $logfile -Append; $failed += $computer }
+    }
+    Else { "No folder located on $computer, moving to next computer...`n" | Out-File $logfile -Append }
+}
+
+If ($failed.count -gt 0) { "`r`n`r`n----------------------------------------------------`r`n`r`nFailed to remove folder from these computers:`r`n`r`n" | Out-File $logfile -Append; $failed | % { "$_`n" | Out-File $logfile -Append } }
+
+$end = Get-Date
+$elapsed = (($end - $logdate).totalSeconds)
+"`r`n------Anaconda Folder Removal Script Completed------`r`n------------------$end---------------`r`n----------Elapsed time: $elapsed seconds----------`r`n`r`n" | Out-File $logfile -Append

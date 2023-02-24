@@ -1,0 +1,91 @@
+PS U:\Our_Extractions\2022\Cupp_04.29.2022> tree /f
+Folder PATH listing for volume OURSTUFF
+Volume serial number is 00000040 8000:0407
+U:.
+    Account-Management-Tool.txt
+    ADUC_Hostnames.txt
+    ADUC_Hostnames_ALL.txt
+    All-Hosts-Banner-Update.txt
+    Automated_30Day-Admin-Account-Disable.ps1.txt
+    Automated_60Day-User-Account-Disable.ps1.txt
+    Automated_AV_Def_Check.ps1.txt
+    Automated_Managed-Security-Groups-Weekly-Audit.ps1.txt
+    Automated_Monthly-Ivanti-Cleanup.ps1.txt
+    Automated_TermOU-Group-Removal-Script.ps1.txt
+    Automated_Update-PtrRecords.ps1.txt
+    Automated_VDI_User_Assignment_Audit.ps1.txt
+    Automated_VDI_User_Assignment_Audit.txt
+    Automated_Weekly_Snapshots_Audit.ps1.txt
+    Automated_Weekly-Drive-Space-Audit.ps1.txt
+    Automated-Termination-Script.ps1.txt
+    Bitlocker-Audit.txt
+    Compass-Account-Tool.txt
+    Compass-ClonePrep-GUI.txt
+    Compass-HDD-SN-Inventory.txt
+    Compass-Reg-Key-Audit.txt
+    Complete_System_Inventory.txt
+    DOORSShortcutUpdate.txt
+    DOORSShortcutUpdate_AEDC.txt
+    DOORSShortcutUpdate_LCMC.txt
+    DOORSShortcutUpdate_PLX.txt
+    DriveFileHistoryAnalysis.txt
+    Drive-Permissions-Check.txt
+    Enable_WinRM_On_Domain.txt
+    EnableWindowsRootAccounts.txt
+    ESXi-Backup-PWD-Change.txt
+    ESXi-Enable-Disable-LockDownMode.txt
+    ESXi-Enable-LockDownMode.txt
+    ESXi-Host-Audit.txt
+    ESXI-LockdownMode-Query.txt
+    ESXi-Root-PWD-Change.txt
+    ESXi-Root-PWD-Change-ListofHosts.txt
+    FileDeletionFromDG.txt
+    Find_User_Sessions_EDIT_ME_Query_User_v2.txt
+    Find-Disabled-User-Log.txt
+    Find-Missing-Jabber.txt
+    Generate-GUID.txt
+    Get-InstalledServerRoles.txt
+    Get-ServiceAccount-Usage.txt
+    GPO-Apply-Reboots.txt
+    Group-Member-to-CSV.txt
+    Hardware-Audit-From-AD.txt
+    Jabber-Reinstall.txt
+    LastLoggedOnUser.txt
+    List_Users.txt
+    MassNetDriveTesting.txt
+    MassPingTesting.txt
+    NoUserTraining-Disable-Accounts - Original.txt
+    NoUserTraining-Disable-Accounts.txt
+    NTP-Source-Check.txt
+    OvernightProcessingLinkRemoval.txt
+    Purge VDI Security Logs.txt
+    purge_and_jabbersilentinstall.bat.txt
+    QuseryUser-Mass list.txt
+    Removal-Anaconda3-StartMenuLinks.txt
+    RemoveDG.txt
+    RemoveOldPackageFiles.txt
+    Search-User-From-CSV.txt
+    Service-AccountsAudit.txt
+    Set-EnvVarDOORS_AEDC.txt
+    Set-EnvVarDOORS_Computer_List.txt
+    Set-EnvVarDOORS_Domain.txt
+    Set-EnvVarDOORS_LCMC.txt
+    Set-EnvVarDOORS_PLX.txt
+    ShareDriveFolderTest.txt
+    ShortcutUpdate.txt
+    Update-LAPS-Exception-Root-PWDs.txt
+    UpdateSparkConfig.txt
+    UpdateSplunkDateTimeFile.txt
+    Update-svc_tasks-Password.txt
+    Update-User-GUT-Status.txt
+    VDI_User_Assignment_Audit.txt
+    vdi-aedc-ALL_Reboot.txt
+    VisMockupUpdateTests.txt
+    VM Inventory.txt
+    VMTools-Updates.txt
+    Weekly_Snapshots_Audit.txt
+    filelist.txt
+
+No subfolders exist
+
+PS U:\Our_Extractions\2022\Cupp_04.29.2022>

@@ -1,0 +1,11 @@
+﻿import-module activedirectory
+
+$computers = Get-Content "\_DavisW\LoggedOnChecklist.txt"
+
+$command = "\_Hillman\purge_and_jabbersilentinstall.bat"
+$cmd = "cmd.exe /c" + $command
+
+ForEach ($computer in $computers) {
+
+    Invoke-WmiMethod -class Win32_process -name Create -ArgumentList ($cmd) -ComputerName $computer
+}

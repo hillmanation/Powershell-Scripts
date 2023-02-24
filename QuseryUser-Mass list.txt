@@ -1,0 +1,14 @@
+﻿$filelist = Import-CSV "\\aetpdata\ourstuff\_SDS Ops Folder\Ops Scripts\QUser-Mass-List.csv"
+
+
+ForEach ($item in $filelist) {
+    $computer = $item.Name
+
+    echo "`r`n--------------------------------"
+
+    echo $computer + "`r`n--------------------------------"
+    $script = 'quser /server:' + $computer +''
+    cmd.exe /c $script
+    
+}
+
