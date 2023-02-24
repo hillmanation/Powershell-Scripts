@@ -10,7 +10,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 ## Get list of computers in the Template OU
-$templateOUComputers = (Get-ADComputer -Filter * -SearchBase "OU=VDI Templates,OU=LAPS Exception,OU=Windows 10,OU=Computers,OU=Compass Blue,DC=EVAV,DC=AE,DC=GE,DC=COM" -Properties Name | where { $_.Name -like "*GOLD*" } | Sort-Object -Property Name).Name
+$templateOUComputers = (Get-ADComputer -Filter * -SearchBase "...DC=COM" -Properties Name | where { $_.Name -like "*GOLD*" } | Sort-Object -Property Name).Name
 
 $infotext = "Clone Prep tool for use converting VDI Templates to Virtual Machine and booting them on a server`r`nso that Maintenance tasks can be completed and Templates can be automatically clone prepped and shut down.`r`n`r`nTo use this tool please ensure you have PowerCli installed on your local machine and click the login button to begin.`r`n`r`n"
 
