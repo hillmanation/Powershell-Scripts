@@ -1,7 +1,7 @@
 ﻿import-module activedirectory
 
-$filelist = Import-CSV "\_Hegge\TMDP\DG_Report_10.12.2021.csv"
-$outputpath = "\_Hegge\TMDP\DG_Report_10.12.2021_Removed.csv"
+$filelist = Import-CSV "\\DG_Report_10.12.2021.csv"
+$outputpath = "\\DG_Report_10.12.2021_Removed.csv"
 $output =@()
 
 ForEach ($item in $filelist) {
@@ -9,7 +9,7 @@ ForEach ($item in $filelist) {
     $filename = $filepath + $item.DEST_FILE_NAME
     $computer = $item.COMPUTER_NAME
     
-    If ($filename -notlike "*aetpdata*") { $drive,$filename = $filename.Split(':'); $filename = "\\$computer\$drive`$$filename" }
+    If ($filename -notlike "**") { $drive,$filename = $filename.Split(':'); $filename = "\\$computer\$drive`$$filename" }
 
     If (!(Test-Path -Path $filename -ErrorAction SilentlyContinue)) { echo "$filename not found, logging and moving on...."; $output += [pscustomobject]@{ ComputerName = $computer; FILE = $filename; Removed = 'TRUE' }; Continue }
 
