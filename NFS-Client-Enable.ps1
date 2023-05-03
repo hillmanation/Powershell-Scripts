@@ -35,7 +35,7 @@ ForEach ($computer in $computers) {
     }
     Else {
         Copy-Item -Path "\\DC-1\$nfspath" -Destination "\\$computer\$nfspath" -force -Recurse
-        If (!(Test-Path -Path "\\$computer\c$\Windows\System32\WindowsPowerShell\v1.0\Modules\NFS" -ErrorAction SilentlyContinue)) {
+        If (!(Test-Path -Path "\\$computer\$nfspath" -ErrorAction SilentlyContinue)) {
             Write-Warning "NFS module not found on $computer, logging and moving on..."; $failed += [pscustomobject]@{ NAME=$computer; Reason="Missing NFS Module"}; Continue }
 
         Try {
@@ -60,6 +60,6 @@ ForEach ($computer in $computers) {
 
 $end = Get-Date
 
-Write-Host -ForegroundColor Green -BackgroundColor Yellow "`nTasks completed at $end, total elapsed time $elapsed."
+Write-Host -ForegroundColor Green -BackgroundColor Black "`nTasks completed at $end, total elapsed time $elapsed."
 
 If ($failed -ne $NULL) { echo "`n`n"; Write-Warning "The following computers had errors:"; $failed }
