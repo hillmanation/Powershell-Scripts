@@ -1,6 +1,7 @@
 ﻿$rootfolder = '\\path\to\searchdirectory'
 $logfolder = '\\path\to\log\folder'
 $date = Get-Date
+$age = 365
 $jobs = @()
 $MaxThreads = 8
 
@@ -10,7 +11,7 @@ Function MultiThread-Search {
 
     $job = Start-Job -ScriptBlock {
         gci $using:directory.FullName -Recurse |
-        where { (New-TimeSpan -start $_.LastWriteTime -end $using:date).Days -gt 60 -and (New-TimeSpan -start $_.CreationTime -end $using:date).Days -gt 60 } |
+        where { (New-TimeSpan -start $_.LastWriteTime -end $using:date).Days -gt $using:age -and (New-TimeSpan -start $_.CreationTime -end $using:date).Days -gt $using:age } |
         Select-Object FullName,LastWriteTime,LastAccessTime,CreationTime |
         Export-CSV $using:log\$using:folder-Drive-Audit.csv -NoTypeInformation -Append
     }
@@ -23,7 +24,7 @@ Function MultiThread-Search {
 $childfolders = gci $rootfolder | Select-Object FullName,LastWriteTime,LastAccessTime,CreationTime,Name,Attributes
 
 ForEach ($childfolder in $childfolders) {
-    If ($childfolder.Attributes -like "*Archive*" -and (New-TimeSpan -start $childfolder.LastWriteTime -end $date).Days -gt 60 -and (New-TimeSpan -start $childfolder.CreationTime -end $date).Days -gt 60) {
+    If ($childfolder.Attributes -like "*Archive*" -and (New-TimeSpan -start $childfolder.LastWriteTime -end $date).Days -gt $age -and (New-TimeSpan -start $childfolder.CreationTime -end $date).Days -gt $age) {
         $childfolder | Select-Object FullName,LastWriteTime,LastAccessTime,CreationTime |
         Export-CSV $logfolder\Drive-Audit.csv -NoTypeInformation -Append
     }
