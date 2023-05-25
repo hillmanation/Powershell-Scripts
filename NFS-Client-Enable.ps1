@@ -1,7 +1,7 @@
 ﻿Import-Module ActiveDirectory
 
 $computers = (Get-AdComputer -Filter * -SearchBase "OU=*,OU=*,DC=*,DC=*..." -SearchScope Subtree).Name
-$domain = "col-dev.ge.com"
+$domain = "contoso.com"
 $nfspath = "c$\Windows\System32\WindowsPowerShell\v1.0\Modules\NFS"
 $failed = @()
 $total = $computers.Count
