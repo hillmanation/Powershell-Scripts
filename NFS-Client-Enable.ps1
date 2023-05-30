@@ -44,7 +44,8 @@ ForEach ($computer in $computers) {
             Write-Host -ForegroundColor Yellow "Enabling Winrm on $computer, the error output in this step is expected..."
             $winrmenable = 'wmic /node:"' + $computer + '" process call create "cmd.exe /c winrm quickconfig -quiet"'
             cmd.exe /c $winrmenable | Out-Null
-            If ((Invoke-Command -ComputerName $computer { 1 } -ErrorAction Ignore) -ne 1) { Write-Warning "Enabling Winrm failed on $computer, logging and moving on..."; $failed += [pscustomobject]@{ NAME=$computer; Reason="Unable to enable Winrm" }
+            If ((Invoke-Command -ComputerName $computer { 1 } -ErrorAction Ignore) -ne 1) { Write-Warning "Enabling Winrm failed on $computer, logging and moving on..."
+                $failed += [pscustomobject]@{ NAME=$computer; Reason="Unable to enable Winrm" }
                 Continue
             }
             Else { Write-Host -ForegroundColor Green "Successfully enabled Winrm on $computer, continuing..." }
@@ -52,7 +53,7 @@ ForEach ($computer in $computers) {
             Invoke-Command -ComputerName $computer -ScriptBlock {
                 Enable-WindowsOptionalFeature -FeatureName ServicesForNFS-ClientOnly,ClientForNFS-Infrastructure -Online -NoRestart -WarningAction Ignore | Out-Null
                 Import-Module NFS
-                Set-NFSMappingStore -EnableADLookup $TRUE -ADDomainName $domain | Out-Null
+                Set-NFSMappingStore -EnableADLookup $TRUE -ADDomainName $using:domain | Out-Null
             }
         }
     }
