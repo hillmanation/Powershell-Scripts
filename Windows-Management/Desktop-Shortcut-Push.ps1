@@ -1,5 +1,5 @@
 ﻿# Desktop Shortcut Push
-# Author: Jacob Hillman <jacob.hillman@ge.com>
+# Author: Jacob Hillman <jacob.hillman.it@gmail.com>
 # Created: 2023-07-24
 <#
 .SYNOPSIS
@@ -40,7 +40,7 @@ In this example we save it to C:\Temp\Computers.txt
 PS> & '.\Desktop-Shortcut-Push.ps1' -OriginalFile O:\Hillman\npp.exe -LinkName NotePad++ -ComputerList C:\Temp\Computers.txt
 
 .LINK
-https://github.com/hillmanation/Powershell-Scripts/tree/main/Windows-Management
+https://github.com/hillmanation/Powershell-Scripts/blob/main/Windows-Management/Desktop-Shortcut-Push.ps1
 
 #>
 
