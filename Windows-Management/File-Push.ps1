@@ -5,7 +5,7 @@ Simple script to copy a file to a location on a list of computers.
 .DESCRIPTION
 
 # File-Push.ps1
-# Author: Jacob Hillman <jacob.hillman@ge.com>
+# Author: JaKe Hillman <jake.hillman.it@gmail.com>
 # Created: 2023-10-03
 
 This script accepts input of a source file path and a source local destination to copy that file to a list of given computers.
@@ -53,7 +53,7 @@ If you use this parameter the script must be run from a location where the Activ
 '.\File-Push.ps1' -SourceFile \\Share1\Ourstuff\file.txt -Destination C:\Temp\Folder -AllWorkstations
 
 .LINK
-https://github.build.ge.com/EdisonWorks-BAR/Useful-Powershell-Scripts/tree/main/General-Windows-Management\File-Push.ps1
+https://github.com/hillmanation/Powershell-Scripts/blob/main/Windows-Management/File-Push.ps1
 
 #>
 
