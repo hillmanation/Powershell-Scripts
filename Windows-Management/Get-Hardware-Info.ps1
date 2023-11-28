@@ -5,12 +5,13 @@ Given a list of Windows hosts, return hardware information to console or CSV.
 .DESCRIPTION
 
 # Get-Hardware-Info.ps1
+# Version: 1.1
 # Author: Jake Hillman <jake.hillman.it@gmail.com>
-# Created: 2023-11-20
+# Updated: 2023-11-28
 
-This script will query the provided computers for hardware information, it will output CPU, RAM, and Model information
+This script will query the provided computers for hardware information, it will output CPU, RAM, Model information and more
 either to the console or a CSV file. If you are not outputting to a CSV file you can pipe the information to Out-Gridview
-(e.g. .\Get-Hardware-Info.ps1 -Computers localhost | Out-GridView) for easier viewing.
+(e.g. .\Get-Hardware-Info.ps1 -ComputerName localhost | Out-GridView) for easier viewing. 
 
 .PARAMETER ComputerName
 Pass this parameter one or multiple computer names (e.g. Computer-1 or Computer-1,Computer-2,Computer-3)
@@ -32,7 +33,7 @@ If you use this parameter the script must be run from a location where the Activ
 This parameter does not accept input, use this parameter to tell the script to locate a list of Windows Workstations from AD.
 If you use this parameter the script must be run from a location where the Active Directory Powershell module is available.
 
-.PARAMETER AllVIDs
+.PARAMETER AllVDIs
 This parameter does not accept input, use this parameter to tell the script to locate a list of Windows VDIs from AD.
 If you use this parameter the script must be run from a location where the Active Directory Powershell module is available.
 
@@ -221,12 +222,12 @@ If ($AllWorkstations.IsPresent) { $computers += (Get-ADComputer -filter * -Prope
 If ($AllVDIs.IsPresent) { $computers += (Get-ADComputer -filter * -Properties Name,OperatingSystem | where { $_.OperatingSystem -like "*Windows*" -and $_.OperatingSystem -notlike "*Server*" -and $_.Name -like "VDI-*" }).Name; $total = $computers.Count }
 If ($OU -ne '' -and $OU -is [system.array] -or $OU -is [system.string]) { 
     ForEach ($DistName in $OU) { 
-        Try { $computers += (Get-ADComputer -filter * -SearchBase $DistName -SearchScope Subtree | where { $_.OperatingSystem -like "*Windows*" -and $_.OperatingSystem -notlike "*Server*" }).Name
+        Try { $computers += (Get-ADComputer -filter * -Properties Name,OperatingSystem -SearchBase $DistName -SearchScope Subtree | where { $_.OperatingSystem -like "*Windows*" -and $_.OperatingSystem -notlike "*Server*" }).Name
               $total = $computers.Count
         } Catch { Write-Warning "Invalid OU Distinguished Name provided, validate the OU and try again."; Exit }
     }
 }
-If ($ComputerName -ne '' -and $ComputerName -is [system.array] -or $ComputerName -is [system.string]) { $computers = $ComputerName; $total = $computers.Count }
+If ($ComputerName -ne '' -and $ComputerName -is [system.array] -or $ComputerName -is [system.string]) { $computers += $ComputerName; $total = $computers.Count }
 If ($ComputerList -ne '' -and $ComputerList -is [system.string]) { 
     Try { If (!(Test-Path -Path $ComputerList -ErrorAction SilentlyContinue)) { Throw [System.IO.FileNotFoundException] } }
     Catch { Write-Warning "List file $ComputerList not found, please verify file path and location and try again."; Exit }
@@ -292,10 +293,10 @@ ForEach ($computer in $computers) {
     $progress++
     $elapsed = ("{0:hh\:mm\:ss}" -f [timespan]::FromSeconds(((Get-Date) - $start).TotalSeconds))
     If ($progress -ne 1) { $average = ((Get-Date) - $start).TotalSeconds/$progress }
-    Else { $average = 25 }
+    Else { $average = 8 }
     $timeremaining = ([timespan]::FromSeconds($average * ($total - $progress))).TotalSeconds
 
-    If (!$AsTask.IsPresent -and $total -gt 1) { Write-ProgressHelper -StepNumber $progress -Message "Querying information from $computer...`tTotal Elapsed Time: $elapsed" -Remaining $timeremaining }
+    If (!$AsTask.IsPresent -and $total -gt 1) { Write-ProgressHelper -StepNumber $progress -Message "Querying information from $computer...    Total Elapsed Time: $elapsed" -Remaining $timeremaining }
 
     ## Check the connection to the computer
     If (!$AsTask.IsPresent) { 
@@ -325,15 +326,30 @@ ForEach ($computer in $computers) {
 
     If (!$AsTask.IsPresent) { Write-Host "Gathering requested information from $computer..." }
 
+    ## Next for better formatting and to handle some behavior with using 'localhost' as the argument for Get-Counter '-ComputerName'
+    ## Let's put our $CimSession parameters in one variable and dynamically decide the ComputerName in another parameter variable
+    $cimparams = @{
+        CimSession = $CimSession
+        ErrorAction = "SilentlyContinue"
+    }
+    ## Now only add the 'ComputerName' parameter if it is not equal to 'localhost'
+    $counterparams = @{
+        SampleInterval = 1
+        MaxSamples = 1
+        ErrorAction = "SilentlyContinue"
+    }
+    If ($computer -ne 'localhost') { $counterparams.ComputerName = $computer } ## This prevents behavior with 'Get-Counter' that doesn't seem to allow you to pass 'localhost' as a 'ComputerName' argument
+    
+
     ## Format info for CSV/Output
     $obj = [ordered]@{}
     $obj['COMPUTER'] = $computer
     ## Gather the RAM size
-    If ('RAM' -in $Query) { $obj['RAM(GB)'] = (Get-CimInstance Win32_PhysicalMemory -CimSession $CimSession | Measure-Object -Property capacity -Sum).sum /1gb }
+    If ('RAM' -in $Query) { $obj['RAM(GB)'] = (Get-CimInstance Win32_PhysicalMemory @cimparams | Measure-Object -Property capacity -Sum).sum /1gb }
     ## Gather the RAM usage in %
-    If ('RAMUsage%' -in $Query) { $obj['RAMUsage%'] = [Math]::Round((((Get-CimInstance -ClassName Win32_OperatingSystem -CimSession $CimSession).TotalVisibleMemorySize - (Get-CimInstance -ClassName Win32_OperatingSystem -CimSession $CimSession).FreePhysicalMemory) / (Get-CimInstance -ClassName Win32_OperatingSystem -CimSession $CimSession).TotalVisibleMemorySize * 100), 2) }
+    If ('RAMUsage%' -in $Query) { $obj['RAMUsage%'] = [Math]::Round((((Get-CimInstance -ClassName Win32_OperatingSystem @cimparams).TotalVisibleMemorySize - (Get-CimInstance -ClassName Win32_OperatingSystem @cimparams).FreePhysicalMemory) / (Get-CimInstance -ClassName Win32_OperatingSystem @cimparams).TotalVisibleMemorySize * 100), 2) }
     ## Gather RAM Usage process Info
-        If ('RAMUsage' -in $Query) { $RAMUsage = Get-Counter -ComputerName $computer -Counter "\Process(*)\Working Set" -SampleInterval 1 -MaxSamples 1 -ErrorAction SilentlyContinue | 
+        If ('RAMUsage' -in $Query) { $RAMUsage = Get-Counter -Counter "\Process(*)\Working Set" @counterparams | 
         Select-Object -ExpandProperty CounterSamples | 
         Where-Object { $_.InstanceName -ne "_Total" -and $_.InstanceName -ne "Idle" } | 
         Sort-Object -Property CookedValue -Descending | 
@@ -348,11 +364,11 @@ ForEach ($computer in $computers) {
         }
     }
     ## Gather CPU Info
-    If ('CPU' -in $Query) { $obj['CPU'] = (Get-CimInstance CIM_Processor -CimSession $CimSession)[0].Name }
+    If ('CPU' -in $Query) { $obj['CPU'] = (Get-CimInstance CIM_Processor @cimparams)[0].Name }
     ## Gather CPU usage in %
-    If ('CPUusage%' -in $Query) { $obj['CPUusage%'] = (Get-CimInstance -ClassName Win32_Processor -CimSession $CimSession).LoadPercentage }
+    If ('CPUusage%' -in $Query) { $obj['CPUusage%'] = (Get-CimInstance -ClassName Win32_Processor @cimparams).LoadPercentage }
     ## Gather CPU Usage process Info
-    If ('CPUusage' -in $Query) { $cpuUsage = Get-Counter -ComputerName $computer -Counter "\Process(*)\% Processor Time" -SampleInterval 1 -MaxSamples 1 -ErrorAction SilentlyContinue | 
+    If ('CPUusage' -in $Query) { $cpuUsage = Get-Counter -Counter "\Process(*)\% Processor Time" @counterparams | 
         Select-Object -ExpandProperty CounterSamples | 
         Where-Object { $_.InstanceName -ne "_Total" -and $_.InstanceName -ne "Idle" } | 
         Sort-Object -Property CookedValue -Descending | 
@@ -367,25 +383,27 @@ ForEach ($computer in $computers) {
         }
     }
     ## Query local Disk info
-    If ('DiskInfo' -in $Query) { $disks = Get-CimInstance Win32_LogicalDisk -CimSession $CimSession | where { $_.DriveType -eq "3" }
+    If ('DiskInfo' -in $Query) { $disks = Get-CimInstance Win32_LogicalDisk @cimparams | where { $_.DriveType -eq "3" }
         $n = 1 ## Setting this to determine if the value needs a comma
         ForEach ($disk in $disks) {
             If ($n -lt ($disks | Measure-Object).Count) { $comma = ", " } ## Place a comma if we aren't to the last value
             Else { $comma = "" }
-            $bdestatus = Get-CimInstance -ClassName "Win32_EncryptableVolume" -Namespace "Root\CIMV2\Security\MicrosoftVolumeEncryption" -CimSession $CimSession | where { $_.DriveLetter -eq $disk.DeviceID }
+            $bdestatus = Get-CimInstance -ClassName "Win32_EncryptableVolume" -Namespace "Root\CIMV2\Security\MicrosoftVolumeEncryption" @cimparams | where { $_.DriveLetter -eq $disk.DeviceID }
             $obj['DiskInfo'] += [string]"$($disk.DeviceID) Volume:$($disk.VolumeName) Bitlocker:$($bdestatus.IsVolumeInitializedForProtection) Size:$([Math]::Round($disk.Size / 1GB, 2))GB Used:$([Math]::Round((($disk.Size - $disk.FreeSpace) / 1GB), 2))GB$comma"
             $n++
         }
     }
     ## Gather Model info
-    If ('MODEL' -in $Query) { $obj['MODEL'] = (Get-CimInstance Win32_ComputerSystem -CimSession $CimSession).Model }
+    If ('MODEL' -in $Query) { $obj['MODEL'] = (Get-CimInstance Win32_ComputerSystem @cimparams).Model }
     ## Gather S/N info
-    If ('S/N' -in $Query) { $obj['S/N'] = (Get-CimInstance Win32_BIOS -CimSession $CimSession).SerialNumber }
+    If ('S/N' -in $Query) { $obj['S/N'] = (Get-CimInstance Win32_BIOS @cimparams).SerialNumber }
     ## Gather BIOS Version info
-    If ('BIOSVer' -in $Query) { $obj['BIOSVer'] = (Get-CimInstance Win32_BIOS -Property SMBIOSBIOSVersion -CimSession $CimSession).SMBIOSBIOSVersion }
+    If ('BIOSVer' -in $Query) { $obj['BIOSVer'] = (Get-CimInstance Win32_BIOS -Property SMBIOSBIOSVersion @cimparams).SMBIOSBIOSVersion }
     ## Gather TPM info
-    If ('TPM' -in $Query) { If ((Get-CimInstance Win32_Tpm -namespace root\CIMV2\Security\MicrosoftTpm -CimSession $CimSession).IsEnabled_InitialValue -eq 'True') { $obj['TPM'] = "Enabled" }
-                            Else { $obj['TPM'] = "Disabled" }
+    If ('TPM' -in $Query) { $tpm = Get-CimInstance Win32_Tpm -namespace root\CIMV2\Security\MicrosoftTpm @cimparams
+        If ($tpm -eq $null) { $obj['TPM'] = "None" }
+        ElseIf ($tpm.IsEnabled_InitialValue -eq 'True') { $obj['TPM'] = "Enabled" }
+        Else { $obj['TPM'] = "Disabled" }
     }
 
     ## Convert info variable to pscustomobject
@@ -406,7 +424,12 @@ ForEach ($computer in $computers) {
 ## Dispose of any remaining CimSession for my sanity
 Get-CimSession | Remove-CimSession
 
-If ($failed -ne '' -and !$AsTask.IsPresent) { Write-Warning "The following computers had errors while gathering hardware information:"; $failed }
+## Write out an error log file if needed
+If ($failed -ne '' -and !$AsTask.IsPresent) { Write-Warning "There were some computers that had errors.`nReview the error information here: $PSScriptRoot\Hardware-Info-ERRORS-$(Get-Date -f "MM-dd-yy").txt"
+    "-----------------------------------------------------`r`n`t$(Get-Date) Info query errors`r`n-----------------------------------------------------" |
+    Out-File "$PSScriptRoot\Hardware-Info-ERRORS-$(Get-Date -f "MM-dd-yy").txt" -Append
+    $failed | Out-File "$PSScriptRoot\Hardware-Info-ERRORS-$(Get-Date -f "MM-dd-yy").txt" -Append
+}
 ElseIf ($failed -ne '') { $failed | Out-File "$PSScriptRoot\Hardware-Info-ERRORS-$(Get-Date -f "MM-dd-yy").txt" -Append }
 
 If (!$AsTask.IsPresent) { 
