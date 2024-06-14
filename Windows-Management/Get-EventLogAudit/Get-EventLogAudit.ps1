@@ -93,9 +93,11 @@ for use in standalone environments
 .\Get-EventLogAudit.ps1 -ComputerList C:\Temp\computers.txt
 Run the script interactively with a list of computer in a text file.
 
+.EXAMPLE
 .\Get-EventLogAudit.ps1 -OU "OU=Computers,DC=Contoso,DC=COM","OU=Servers,DC=Contoso,DC=COM"
 Run the script and gather windows machines from a single or multiple OU's from the local Active Directory domain.
 
+.EXAMPLE
 .\Get-EventLogAudit.ps1 -AllWorkstations
 Run the script against a list of workstations gathered from the local Active Directory domain.
 
@@ -109,11 +111,8 @@ This essentially makes the script non-interactive unless '-Standalone' is used, 
 .\Get-EventLogAudit.ps1 -Local -Defaults
 The '-Defaults' switch bypasses any user saved settings and will load the default set of event ID queries.
 
-# Include a short description of the function being completed here
-# Place the example command on the first line under '.EXAMPLE', the 'PS>' part will be automatically added
-
 .LINK
-https://github.build.ge.com/EdisonWorks-BAR/Useful-Powershell-Scripts/tree/main/General-Windows-Management/Get-EventLogAudit/Get-EventLogAudit.ps1
+https://github.com/hillmanation/Powershell-Scripts/edit/main/Windows-Management/Get-EventLogAudit/Get-EventLogAudit.ps1
 
 #>
 
