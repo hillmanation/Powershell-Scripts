@@ -5,8 +5,8 @@ Audit Windows Event Logs for Local or Remote computers and compile them into a C
 .DESCRIPTION
 
 # Get-EventLogAudit.ps1
-# Author: Jake Hillman <jacob.hillman@ge.com>
-# Co-Author: Danny Kimble <daniel.kimble@ge.com>
+# Author: Jake Hillman <jake.hillman.it@gmail.com>
+# Co-Author: Danny Kimble 
 # Created: 2024-06-10
 # Version: 1.0
 
